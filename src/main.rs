@@ -16,6 +16,7 @@ fn main() {
 #[derive(Component)]
 struct Disc {
     angle: f32,
+    speed: f32,
 }
 
 #[derive(Resource)]
@@ -29,14 +30,14 @@ fn setup(
     commands.spawn((
         PbrBundle {
             mesh: asset_server.load("nevermore.stl"),
-            material: materials.add(Color::rgb(0.9, 0.4, 0.3).into()),
+            material: materials.add(Color::rgb(1.0, 0.4, 0.9).into()),
             transform: Transform::from_rotation(Quat::from_rotation_z(0.0)),
             ..Default::default()
         },
-        Disc { angle: 0.0 }
+        Disc { angle: 0.0, speed: 0.5 }
     ));
     commands.spawn(PointLightBundle {
-        transform: Transform::from_xyz(30.0, 0.0, 20.0),
+        transform: Transform::from_xyz(5.0, 0.0, 20.0),
         point_light: PointLight {
             range: 40.0,
             ..Default::default()
@@ -44,8 +45,8 @@ fn setup(
         ..Default::default()
     });
     commands.spawn(Camera3dBundle {
-        transform: Transform::from_translation(Vec3::new(0.0, -10.0, 10.0))
-            .looking_at(Vec3::new(0.0, 0.0, 0.0), Vec3::Y),
+        transform: Transform::from_translation(Vec3::new(0.0, -5.0, 5.0))
+            .looking_at(Vec3::new(0.0, 2.0, 0.0), Vec3::Y),
         ..Default::default()
     });
 }
@@ -61,7 +62,9 @@ fn spin_disc(
         .just_finished()
     {
         for (mut disc, mut transform) in query.iter_mut() {
-            disc.angle = disc.angle + 0.3 * PI / 180.0;
+            disc.angle += disc.speed * 2.0 * PI / 60.0;
+            disc.speed += 0.001;
+            println!("{}", disc.speed);
             *transform = Transform::from_rotation(Quat::from_rotation_z(disc.angle));
         }
     }
